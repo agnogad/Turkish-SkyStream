@@ -73,10 +73,9 @@ function parseMovies(html) {
         }
 
         items.push({
-            title: title,
-            url: href,
-            posterUrl: poster,
-            isFolder: false
+            name: title,
+            link: href,
+            image: poster
         });
     });
 
@@ -119,36 +118,16 @@ function getHome(cb) {
 
     categories.forEach(cat => {
 
-        const fetchPage = (page, done) => {
-            const fullUrl = `${mainUrl}/${cat.url}${page}`;
+        //const fetchPage = (page, done) => {
+            const fullUrl = `${mainUrl}/${cat.url}`;
 
             http_get(fullUrl, commonHeaders, res => {
                 if (res.status !== 200) return done([]);
 
                 const items = parseMovies(res.body);
-                done(items);
+                cb(JSON.stringify([{ title: cat.title, Data: items }]));
             });
-        };
+        //};
 
-        fetchPage(1, list1 => {
-            fetchPage(2, list2 => {
-                const seen = {};
-                const unique = [];
-
-                list1.concat(list2).forEach(item => {
-                    if (!seen[item.url]) {
-                        seen[item.url] = true;
-                        unique.push(item);
-                    }
-                });
-
-                if (unique.length > 0)
-                    results[cat.title] = unique;
-
-                completed++;
-                if (completed === categories.length)
-                    cb(results);
-            });
-        });
     });
 }
