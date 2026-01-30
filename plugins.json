@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Fullhdfilmizlesene",
+    "internalName": "fullhdfilmizlesene",
+    "url": "https://raw.githubusercontent.com/agnogad/Turkish-SkyStream/refs/heads/main/src/fullhdfilmizlesene.js",
+    "icon": "https://www.fullhdfilmizlesene.tv/favicon.ico",
+    "version": 1,
+    "description": "film için kaynak",
+    "authors": ["agnogad"],
+    "language": "tr",
+    "types": ["Movies"]
+  }
+]
