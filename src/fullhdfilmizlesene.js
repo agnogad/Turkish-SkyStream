@@ -10,7 +10,7 @@ const externalHeaders = {
 // --- Manifest ---
 function getManifest() {
     return {
-        "id": "dev.agnogad.fullhdfilmizlesene",
+        "id": "com.turkish.fullhdfilmizlesene",
         "name": "Fullhdfilmizlesene",
         "internalName": "Fullhdfilmizlesene",
         "version": 2,
