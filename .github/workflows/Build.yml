@@ -5,6 +5,9 @@ on:
     paths:
       - "src/**/*.js"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,32 +18,35 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Find changed JS files
+      - name: Get changed JS files
         id: changed
         run: |
           FILES=$(git diff --name-only HEAD^ HEAD | grep '^src/.*\.js$' || true)
-          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo "FILES=$FILES" >> $GITHUB_ENV
 
-      - name: Build SKY files
-        if: steps.changed.outputs.files != ''
+      - name: Build .sky files
+        if: env.FILES != ''
         run: |
           mkdir -p build
 
-          for file in ${{ steps.changed.outputs.files }}; do
-            BASENAME=$(basename "$file" .js)
+          for file in $FILES; do
+            NAME=$(basename "$file" .js)
 
-            mkdir -p temp_plugin
-            cp "$file" temp_plugin/plugin.js
+            rm -rf tmp
+            mkdir tmp
+            cp "$file" tmp/plugin.js
 
-            cd temp_plugin
-            zip -r "../build/${BASENAME}.sky" plugin.js
-            cd ..
+            (cd tmp && zip -q "../build/${NAME}.sky" plugin.js)
 
-            rm -rf temp_plugin
+            rm -rf tmp
           done
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: sky-build
-          path: build/
+      - name: Commit build output
+        if: env.FILES != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add build/*.sky || true
+          git commit -m "build: update .sky plugin(s)" || echo "Nothing to commit"
+          git push
