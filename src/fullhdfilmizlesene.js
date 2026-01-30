@@ -1,5 +1,5 @@
 const mainUrl = "https://www.fullhdfilmizlesene.tv";
-
+var MAIN_URL ="https://www.fullhdfilmizlesene.tv";
 
 const commonHeaders = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
@@ -10,19 +10,21 @@ const externalHeaders = {
 };
 
 // --- Manifest ---
-function getManifest() {
+async function getManifest() {
     return {
-        "id": "com.turkish.fullhdfilmizlesene",
-        "name": "Fullhdfilmizlesene",
-        "internalName": "Fullhdfilmizlesene",
-        "version": 2,
-        "description": "Film kaynağı",
-        "language": "tr",
-        "tvTypes": ["Movie"],
-        "baseUrl": mainUrl,
-        "iconUrl": "https://www.fullhdfilmizlesene.tv/favicon.ico"
+        id: "dev.turkish.fullhdfilmizlesene",
+        version: 2,
+        name: "Fullhdfilmizlesene",
+        description: "film kaynağı",
+        baseUrl: MAIN_URL,
+        lang: "tr",
+        hasSearch: true,
+        bg: "#000000",
+        fg: "#FFFFFF"
     };
 }
+
+
 
 // --- Helpers ---
 function fixUrl(url) {
