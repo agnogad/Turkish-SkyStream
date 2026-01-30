@@ -1,0 +1,46 @@
+name: Build SKY Plugin
+
+on:
+  push:
+    paths:
+      - "src/**/*.js"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Find changed JS files
+        id: changed
+        run: |
+          FILES=$(git diff --name-only HEAD^ HEAD | grep '^src/.*\.js$' || true)
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+      - name: Build SKY files
+        if: steps.changed.outputs.files != ''
+        run: |
+          mkdir -p build
+
+          for file in ${{ steps.changed.outputs.files }}; do
+            BASENAME=$(basename "$file" .js)
+
+            mkdir -p temp_plugin
+            cp "$file" temp_plugin/plugin.js
+
+            cd temp_plugin
+            zip -r "../build/${BASENAME}.sky" plugin.js
+            cd ..
+
+            rm -rf temp_plugin
+          done
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sky-build
+          path: build/
