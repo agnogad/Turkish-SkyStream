@@ -1,4 +1,6 @@
 const mainUrl = "https://www.fullhdfilmizlesene.tv";
+
+
 const commonHeaders = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
 };
@@ -20,6 +22,26 @@ function getManifest() {
         "baseUrl": mainUrl,
         "iconUrl": "https://www.fullhdfilmizlesene.tv/favicon.ico"
     };
+}
+
+// --- Helpers ---
+function fixUrl(url) {
+    if (!url) return "";
+    if (url.startsWith("//")) return "https:" + url;
+    if (url.startsWith("/")) return mainUrl + url;
+    return url;
+}
+
+function decodeHtml(html) {
+    if (!html) return "";
+    return html.replace(/&#(\d+);/g, function (match, dec) {
+        return String.fromCharCode(dec);
+    }).replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&apos;/g, "'");
 }
 
 // Film extract için
