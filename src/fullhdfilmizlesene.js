@@ -1,0 +1,132 @@
+const mainUrl = "https://www.fullhdfilmizlesene.tv";
+
+
+const commonHeaders = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+};
+
+const externalHeaders = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+};
+
+// --- Manifest ---
+function getManifest() {
+    return {
+        "id": "dev.agnogad.fullhdfilmizlesene",
+        "name": "Fullhdfilmizlesene",
+        "internalName": "Fullhdfilmizlesene",
+        "version": 2,
+        "description": "Film kaynağı",
+        "language": "en",
+        "tvTypes": ["Movie"],
+        "baseUrl": mainUrl,
+        "iconUrl": "https://www.fullhdfilmizlesene.tv/favicon.ico"
+    };
+}
+
+// Film extract için
+function parseMovies(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const items = [];
+
+    doc.querySelectorAll("li.film").forEach(el => {
+        const titleEl = el.querySelector("span.film-title");
+        if (!titleEl) return;
+
+        const title = titleEl.textContent.trim();
+        if (!title) return;
+
+        const aTag = el.querySelector("a");
+        if (!aTag || !aTag.getAttribute("href")) return;
+
+        const href = fixUrl(aTag.getAttribute("href"));
+
+        const img = el.querySelector("img");
+        let poster = "";
+        if (img) {
+            poster = img.getAttribute("data-src") || img.getAttribute("src") || "";
+            if (poster) poster = fixUrl(poster);
+        }
+
+        items.push({
+            title: title,
+            url: href,
+            posterUrl: poster,
+            isFolder: false
+        });
+    });
+
+    return items;
+}
+
+function getHome(cb) {
+    const categories = [
+        { title: "Homepage", url: "" },
+  { title: "En Çok İzlenen Filmler", url: "en-cok-izlenen-filmler-izle-hd/" },
+  { title: "IMDB Puanı Yüksek Filmler", url: "filmizle/imdb-puani-yuksek-filmler-izle-1/" },
+  { title: "Aile Filmleri", url: "filmizle/aile-filmleri-hdf-izle/" },
+  { title: "Aksiyon Filmleri", url: "filmizle/aksiyon-filmleri-hdf-izle/" },
+  { title: "Animasyon Filmleri", url: "filmizle/animasyon-filmleri-fhd-izle/" },
+  { title: "Belgeseller", url: "filmizle/belgesel-filmleri-izle/" },
+  { title: "Bilim Kurgu Filmleri", url: "filmizle/bilim-kurgu-filmleri-izle-2/" },
+  { title: "Blu Ray Filmler", url: "filmizle/bluray-filmler-izle/" },
+  { title: "Çizgi Filmler", url: "filmizle/cizgi-filmler-fhd-izle/" },
+  { title: "Dram Filmleri", url: "filmizle/dram-filmleri-hd-izle/" },
+  { title: "Fantastik Filmler", url: "filmizle/fantastik-filmler-hd-izle/" },
+  { title: "Gerilim Filmleri", url: "filmizle/gerilim-filmleri-fhd-izle/" },
+  { title: "Gizem Filmleri", url: "filmizle/gizem-filmleri-hd-izle/" },
+  { title: "Hint Filmleri", url: "filmizle/hint-filmleri-fhd-izle/" },
+  { title: "Komedi Filmleri", url: "filmizle/komedi-filmleri-fhd-izle/" },
+  { title: "Korku Filmleri", url: "filmizle/korku-filmleri-izle-3/" },
+  { title: "Macera Filmleri", url: "filmizle/macera-filmleri-fhd-izle/" },
+  { title: "Müzikal Filmler", url: "filmizle/muzikal-filmler-izle/" },
+  { title: "Polisiye Filmleri", url: "filmizle/polisiye-filmleri-izle/" },
+  { title: "Psikolojik Filmler", url: "filmizle/psikolojik-filmler-izle/" },
+  { title: "Romantik Filmler", url: "filmizle/romantik-filmler-fhd-izle/" },
+  { title: "Savaş Filmleri", url: "filmizle/savas-filmleri-fhd-izle/" },
+  { title: "Suç Filmleri", url: "filmizle/suc-filmleri-izle/" },
+  { title: "Tarih Filmleri", url: "filmizle/tarih-filmleri-fhd-izle/" },
+  { title: "Western Filmler", url: "filmizle/western-filmler-hd-izle-3/" },
+  { title: "Yerli Filmler", url: "filmizle/yerli-filmler-hd-izle/" }
+    ];
+
+        const results = {};
+    let completed = 0;
+
+    categories.forEach(cat => {
+
+        const fetchPage = (page, done) => {
+            const fullUrl = `${mainUrl}/${cat.url}${page}`;
+
+            http_get(fullUrl, commonHeaders, res => {
+                if (res.status !== 200) return done([]);
+
+                const items = parseMovies(res.body);
+                done(items);
+            });
+        };
+
+        fetchPage(1, list1 => {
+            fetchPage(2, list2 => {
+                const seen = {};
+                const unique = [];
+
+                list1.concat(list2).forEach(item => {
+                    if (!seen[item.url]) {
+                        seen[item.url] = true;
+                        unique.push(item);
+                    }
+                });
+
+                if (unique.length > 0)
+                    results[cat.title] = unique;
+
+                completed++;
+                if (completed === categories.length)
+                    cb(results);
+            });
+        });
+    });
+}
