@@ -17,7 +17,7 @@ function getManifest() {
         "internalName": "Fullhdfilmizlesene",
         "version": 2,
         "description": "Film kaynağı",
-        "language": "en",
+        "language": "tr",
         "tvTypes": ["Movie"],
         "baseUrl": mainUrl,
         "iconUrl": "https://www.fullhdfilmizlesene.tv/favicon.ico"
