@@ -14,7 +14,7 @@ async function getManifest() {
     return {
         id: "com.turkish.repo.fullhdfilmizlesene",
         version: 2,
-        name: "Fullhdfilmizlesene",
+        name: "fullhdfilmizlesene",
         description: "film kaynağı",
         baseUrl: MAIN_URL,
         lang: "tr",
@@ -81,7 +81,7 @@ function parseMovies(html) {
     return items;
 }
 
-function getHome() {
+async function getHome() {
     const categories = [
         { title: "Homepage", url: "" },
         { title: "En Çok İzlenen Filmler", url: "en-cok-izlenen-filmler-izle-hd/" },
@@ -114,3 +114,4 @@ function getHome() {
         });
     });
 }
+
