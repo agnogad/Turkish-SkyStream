@@ -104,11 +104,11 @@ async function getHome() {
                 completed++;
 
                 if (res.status === 200) {
-                    results[cat.title] = parseMovies(res.body);
-                } else {
-                    results[cat.title] = [];
-                }
-
+                	const datam = parseMovies(res.body);
+                if(datam.length > 0){
+                    results[cat.title] = datam; 
+                } 
+                } 
                 if (completed === categories.length) {
                     resolve(results); // ✅ KRİTİK FIX
                 }
