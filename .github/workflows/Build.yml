@@ -34,8 +34,21 @@ jobs:
 
             rm -rf tmp
             mkdir tmp
-            cp "$file" tmp/plugin.js
 
+            # plugin.js oluştur
+            touch tmp/plugin.js
+
+            # libs varsa en başa ekle
+            if [ -d "libs" ]; then
+              for lib in libs/*.js; do
+                [ -f "$lib" ] && cat "$lib" >> tmp/plugin.js
+              done
+            fi
+
+            # asıl dosyayı alta ekle
+            cat "$file" >> tmp/plugin.js
+
+            # sky oluştur
             (cd tmp && zip -q "../build/${NAME}.sky" plugin.js)
 
             rm -rf tmp
