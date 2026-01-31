@@ -82,7 +82,7 @@ function parseMovies(html) {
     return items;
 }
 
-function getHome(cb) {
+function getHome() {
     const categories = [
         { title: "Homepage", url: "" },
         { title: "En Çok İzlenen Filmler", url: "en-cok-izlenen-filmler-izle-hd/" },
