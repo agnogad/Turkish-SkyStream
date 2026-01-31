@@ -48,37 +48,36 @@ function decodeHtml(html) {
 
 // Film extract için
 function parseMovies(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-
     const items = [];
 
-    doc.querySelectorAll("li.film").forEach(el => {
-        const titleEl = el.querySelector("span.film-title");
-        if (!titleEl) return;
+    // <li class="film"> ... </li>
+    const filmBlocks = html.match(/<li[^>]*class=["']film["'][\s\S]*?<\/li>/g) || [];
 
-        const title = titleEl.textContent.trim();
+    filmBlocks.forEach(block => {
+        // title
+        const titleMatch = block.match(/class=["']film-title["'][^>]*>([^<]+)</);
+        if (!titleMatch) return;
+
+        const title = titleMatch[1].trim();
         if (!title) return;
 
-        const aTag = el.querySelector("a");
-        if (!aTag || !aTag.getAttribute("href")) return;
+        // link
+        const linkMatch = block.match(/<a[^>]+href=["']([^"']+)["']/);
+        if (!linkMatch) return;
 
-        const href = fixUrl(aTag.getAttribute("href"));
+        const link = fixUrl(linkMatch[1]);
 
-        const img = el.querySelector("img");
-        let poster = "";
-        if (img) {
-            poster = img.getAttribute("data-src") || img.getAttribute("src") || "";
-            if (poster) poster = fixUrl(poster);
-        }
+        // image
+        const imgMatch = block.match(/<img[^>]+(data-src|src)=["']([^"']+)["']/);
+        let image = "";
+        if (imgMatch) image = fixUrl(imgMatch[2]);
 
         items.push({
             title: title,
-            url: href,
-            posterUrl: poster
+            url: link,
+            posterUrl: image
         });
     });
-
     return items;
 }
 
