@@ -1,17 +1,22 @@
-const BASE_URL = "https://www.fullhdfilmizlesene.tv";
+const mainUrl = "https://www.fullhdfilmizlesene.tv";
+var MAIN_URL ="https://www.fullhdfilmizlesene.tv";
 
 const commonHeaders = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
+};
+
+const externalHeaders = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
 };
 
 // --- Manifest ---
 async function getManifest() {
     return {
-        id: "dev.turkish.fullhdfilmizlesene",
+        id: "com.turkish.repo.fullhdfilmizlesene",
         version: 2,
         name: "Fullhdfilmizlesene",
         description: "film kaynağı",
-        baseUrl: BASE_URL,
+        baseUrl: MAIN_URL,
         lang: "tr",
         hasSearch: true,
         bg: "#000000",
@@ -19,15 +24,29 @@ async function getManifest() {
     };
 }
 
+
+
 // --- Helpers ---
 function fixUrl(url) {
     if (!url) return "";
     if (url.startsWith("//")) return "https:" + url;
-    if (url.startsWith("/")) return BASE_URL + url;
+    if (url.startsWith("/")) return mainUrl + url;
     return url;
 }
 
-// Film extract
+function decodeHtml(html) {
+    if (!html) return "";
+    return html.replace(/&#(\d+);/g, function (match, dec) {
+        return String.fromCharCode(dec);
+    }).replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&apos;/g, "'");
+}
+
+// Film extract için
 function parseMovies(html) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
@@ -42,7 +61,7 @@ function parseMovies(html) {
         if (!title) return;
 
         const aTag = el.querySelector("a");
-        if (!aTag) return;
+        if (!aTag || !aTag.getAttribute("href")) return;
 
         const href = fixUrl(aTag.getAttribute("href"));
 
@@ -50,20 +69,19 @@ function parseMovies(html) {
         let poster = "";
         if (img) {
             poster = img.getAttribute("data-src") || img.getAttribute("src") || "";
-            poster = fixUrl(poster);
+            if (poster) poster = fixUrl(poster);
         }
 
         items.push({
-            name: title,
-            link: href,
-            image: poster
+            title: title,
+            url: href,
+            posterUrl: poster
         });
     });
 
     return items;
 }
 
-// --- Home ---
 function getHome(cb) {
     const categories = [
         { title: "Homepage", url: "" },
@@ -73,29 +91,47 @@ function getHome(cb) {
         { title: "Aksiyon Filmleri", url: "filmizle/aksiyon-filmleri-hdf-izle/" },
         { title: "Animasyon Filmleri", url: "filmizle/animasyon-filmleri-fhd-izle/" },
         { title: "Belgeseller", url: "filmizle/belgesel-filmleri-izle/" },
-        { title: "Bilim Kurgu Filmleri", url: "filmizle/bilim-kurgu-filmleri-izle-2/" }
+        { title: "Bilim Kurgu Filmleri", url: "filmizle/bilim-kurgu-filmleri-izle-2/" },
+        { title: "Blu Ray Filmler", url: "filmizle/bluray-filmler-izle/" },
+        { title: "Çizgi Filmler", url: "filmizle/cizgi-filmler-fhd-izle/" },
+        { title: "Dram Filmleri", url: "filmizle/dram-filmleri-hd-izle/" },
+        { title: "Fantastik Filmler", url: "filmizle/fantastik-filmler-hd-izle/" },
+        { title: "Gerilim Filmleri", url: "filmizle/gerilim-filmleri-fhd-izle/" },
+        { title: "Gizem Filmleri", url: "filmizle/gizem-filmleri-hd-izle/" },
+        { title: "Hint Filmleri", url: "filmizle/hint-filmleri-fhd-izle/" },
+        { title: "Komedi Filmleri", url: "filmizle/komedi-filmleri-fhd-izle/" },
+        { title: "Korku Filmleri", url: "filmizle/korku-filmleri-izle-3/" },
+        { title: "Macera Filmleri", url: "filmizle/macera-filmleri-fhd-izle/" },
+        { title: "Müzikal Filmler", url: "filmizle/muzikal-filmler-izle/" },
+        { title: "Polisiye Filmleri", url: "filmizle/polisiye-filmleri-izle/" },
+        { title: "Psikolojik Filmler", url: "filmizle/psikolojik-filmler-izle/" },
+        { title: "Romantik Filmler", url: "filmizle/romantik-filmler-fhd-izle/" },
+        { title: "Savaş Filmleri", url: "filmizle/savas-filmleri-fhd-izle/" },
+        { title: "Suç Filmleri", url: "filmizle/suc-filmleri-izle/" },
+        { title: "Tarih Filmleri", url: "filmizle/tarih-filmleri-fhd-izle/" },
+        { title: "Western Filmler", url: "filmizle/western-filmler-hd-izle-3/" },
+        { title: "Yerli Filmler", url: "filmizle/yerli-filmler-hd-izle/" }
     ];
 
-    const results = [];
+    const results = {};
     let completed = 0;
 
     categories.forEach(cat => {
-        const fullUrl = `${BASE_URL}/${cat.url}`;
+        const fullUrl = `${mainUrl}/${cat.url}`;
 
         http_get(fullUrl, commonHeaders, res => {
             completed++;
 
-            if (res && res.status === 200) {
+            if (res.status === 200) {
                 const items = parseMovies(res.body);
-                results.push({
-                    title: cat.title,
-                    Data: items
-                });
+                results[cat.title] = items; // 🔴 ASIL OLAY BURASI
+            } else {
+                results[cat.title] = [];
             }
 
-            // Tüm kategoriler bittiğinde tek callback
+            // Tüm kategoriler bitince TEK SEFER callback
             if (completed === categories.length) {
-                cb(JSON.stringify(results));
+                return results;
             }
         });
     });
