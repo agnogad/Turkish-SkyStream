@@ -56,7 +56,7 @@ async function getHome() {
     return new Promise(resolve => {
         const categories = [
             { title: "Homepage", url: "" },
-            { title: "En Çok İzlenen Filmler", url: "en-cok-izlenen-filmler-izle-hd/" },
+            { title: "Top 10", url: "en-cok-izlenen-filmler-izle-hd/" },
             { title: "IMDB Puanı Yüksek Filmler", url: "filmizle/imdb-puani-yuksek-filmler-izle-1/" },
             { title: "Aksiyon Filmleri", url: "filmizle/aksiyon-filmleri-hdf-izle/" },
             { title: "Bilim Kurgu Filmleri", url: "filmizle/bilim-kurgu-filmleri-izle-2/" },
